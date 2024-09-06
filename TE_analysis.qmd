@@ -1,0 +1,176 @@
+---
+title: "isoform_TE"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(ggsci)
+library(scales)
+```
+
+#3-79 重复序列
+
+```{r}
+library(ggpubr)
+library(cowplot)
+library(patchwork)
+```
+
+```{r}
+library(readr)
+Gb_rep_content <- read_delim("Gb_rep_content.txt", 
+    delim = "\t", escape_double = FALSE, 
+    col_names = FALSE, col_types = cols(`4.69%` = col_number(), 
+        X4 = col_number()), trim_ws = TRUE)
+```
+
+```{r}
+Gb_rep_content <- Gb_rep_content %>%
+  rename("id" = X1, "Structural_category" = X2, "Coding_ability" = X3, "Repeat_Content" = X4)
+```
+
+```{r}
+#设置因子顺序
+Gb_rep_content$Structural_category <- factor(Gb_rep_content$Structural_category, 
+                                          levels = c("intergenic", "antisense", "genic",  "novel_not_in_catalog", "novel_in_catalog","fusion","full-splice_match", "incomplete-splice_match"))
+```
+
+```{r}
+hairepeat_p <- ggplot(Gb_rep_content, aes(x = Structural_category, y = Repeat_Content, fill = Coding_ability)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#004180", "#0068cd")) +
+  theme_cowplot() +
+  stat_compare_means(aes(group = Coding_ability), label = "p.signif",angle =-90, vjust = 0.5, hjust =1) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) + 
+  labs(x = "Structural category", y = "Repeat content") +
+  guides(fill = guide_legend(title = NULL)) +
+  labs(title = "3-79")
+```
+
+#TM-1 重复序列含量统计
+
+```{r}
+library(readr)
+Gh_rep_content <- read_delim("Gh_rep_content.txt", 
+    delim = "\t", escape_double = FALSE, 
+    col_names = FALSE, col_types = cols(X4 = col_number()), 
+    trim_ws = TRUE)
+```
+
+```{r}
+Gh_rep_content <- Gh_rep_content %>%
+  rename("id" = X1, "Structural_category" = X2, "Coding_ability" = X3, "Repeat_Content" = X4)
+```
+
+```{r}
+Gh_rep_content <- Gh_rep_content[Gh_rep_content$Structural_category != "genic_intron", ]
+```
+
+```{r}
+#设置因子顺序
+Gh_rep_content$Structural_category <- factor(Gh_rep_content$Structural_category, 
+                                          levels = c("intergenic", "antisense", "genic",  "novel_not_in_catalog", "novel_in_catalog","fusion","full-splice_match", "incomplete-splice_match"))
+```
+
+```{r}
+lurepeat_p <- ggplot(Gh_rep_content, aes(x = Structural_category, y = Repeat_Content, fill = Coding_ability)) +
+  geom_boxplot(outlier.shape = NA) +
+  scale_fill_manual(values = c("#ff9a38", "#d16700")) +
+  theme_cowplot() +
+  stat_compare_means(aes(group = Coding_ability), label = "p.signif", angle =-90, vjust = 0.5, hjust =1) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) + 
+  labs(x = "Structural category", y = "Repeat content") +
+  guides(fill = guide_legend(title = NULL)) +
+  labs(title = "TM-1")
+```
+
+```{r}
+repeat_p <- hairepeat_p | lurepeat_p
+```
+
+```{r}
+ggsave("repeat.pdf", plot = repeat_p, width = 14, height = 8)
+```
+
+#转座子分布
+
+```{r}
+library(readxl)
+Gb_repeat_class <- read_excel("Gb_repeat_class.xlsx", 
+    col_types = c("text", "text", "numeric", 
+        "numeric", "numeric"))
+```
+
+```{r}
+Gb_repeat_class <- pivot_longer(Gb_repeat_class, cols = c('Repeat-derived promoter', 'Internal repeat inclusion', 'Repeat-derived terminator'), names_to = "Category", values_to = "Percentage")
+
+```
+
+```{r}
+#设置因子顺序
+Gb_repeat_class$'Isoform class' <- factor(Gb_repeat_class$'Isoform class', 
+                                          levels = c("Intergenic", "Antisense", "Genic", "NNC", "NIC","Fusion","FSM", "ISM"))
+```
+
+```{r}
+GbTE_p <- ggplot(Gb_repeat_class, aes(x = Percentage, y = `Isoform class`, fill = `Repeat class`)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Category) +
+  scale_fill_manual(values = c("#006ad1", "#0483ff")) +
+  scale_x_continuous(labels = percent) +
+  theme_classic() +
+  guides(fill = guide_legend(title = NULL)) +
+  theme(
+    panel.border = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold"))+
+  labs(title = "3-79")
+```
+
+```{r}
+ggsave("GbTE.pdf", plot = GbTE_p, width = 12, height = 8)
+```
+
+TM-1
+
+```{r}
+library(readxl)
+TM_1_TE <- read_excel("TM_1_TE.xlsx")
+
+```
+
+```{r}
+Gh_repeat_class <- pivot_longer(TM_1_TE, cols = c('Repeat-derived promoter', 'Internal repeat inclusion', 'Repeat-derived terminator'), names_to = "Category", values_to = "Percentage")
+```
+
+```{r}
+#设置因子顺序
+Gh_repeat_class$'Isoform class' <- factor(Gh_repeat_class$'Isoform class', 
+                                          levels = c("Intergenic", "Antisense", "Genic", "NNC", "NIC","Fusion","FSM", "ISM"))
+```
+
+```{r}
+GhTE_p <- ggplot(Gh_repeat_class, aes(x = Percentage, y = `Isoform class`, fill = `Repeat class`)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Category) +
+  scale_fill_manual(values = c("#d16700", "#ff8d1e")) +
+  scale_x_continuous(labels = percent) +
+  theme_classic() +
+  guides(fill = guide_legend(title = NULL)) +
+  theme(
+    panel.border = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold"))+
+  labs(title = "TM-1")
+```
+
+```{r}
+ggsave("GhTE.pdf", plot = GhTE_p, width = 12, height = 8)
+```
