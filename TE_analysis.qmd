@@ -1,11 +1,5 @@
----
-title: "isoform_TE"
-format: html
-editor: visual
----
-
 ## Quarto
-#TM-1 repeat sequence content statistics
+#3-79 repeat sequence content statistics
 ```{r}
 library(tidyverse)
 library(ggplot2)
