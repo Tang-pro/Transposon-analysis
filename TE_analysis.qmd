@@ -5,15 +5,13 @@ editor: visual
 ---
 
 ## Quarto
-
+#TM-1 repeat sequence content statistics
 ```{r}
 library(tidyverse)
 library(ggplot2)
 library(ggsci)
 library(scales)
 ```
-
-#3-79 重复序列
 
 ```{r}
 library(ggpubr)
@@ -35,7 +33,7 @@ Gb_rep_content <- Gb_rep_content %>%
 ```
 
 ```{r}
-#设置因子顺序
+#Set factor order
 Gb_rep_content$Structural_category <- factor(Gb_rep_content$Structural_category, 
                                           levels = c("intergenic", "antisense", "genic",  "novel_not_in_catalog", "novel_in_catalog","fusion","full-splice_match", "incomplete-splice_match"))
 ```
@@ -53,7 +51,7 @@ hairepeat_p <- ggplot(Gb_rep_content, aes(x = Structural_category, y = Repeat_Co
   labs(title = "3-79")
 ```
 
-#TM-1 重复序列含量统计
+#TM-1 repeat sequence content statistics
 
 ```{r}
 library(readr)
@@ -73,7 +71,7 @@ Gh_rep_content <- Gh_rep_content[Gh_rep_content$Structural_category != "genic_in
 ```
 
 ```{r}
-#设置因子顺序
+#Set factor order
 Gh_rep_content$Structural_category <- factor(Gh_rep_content$Structural_category, 
                                           levels = c("intergenic", "antisense", "genic",  "novel_not_in_catalog", "novel_in_catalog","fusion","full-splice_match", "incomplete-splice_match"))
 ```
@@ -99,7 +97,7 @@ repeat_p <- hairepeat_p | lurepeat_p
 ggsave("repeat.pdf", plot = repeat_p, width = 14, height = 8)
 ```
 
-#转座子分布
+#Transposon distribution statistics
 
 ```{r}
 library(readxl)
@@ -114,7 +112,7 @@ Gb_repeat_class <- pivot_longer(Gb_repeat_class, cols = c('Repeat-derived promot
 ```
 
 ```{r}
-#设置因子顺序
+#Set factor order
 Gb_repeat_class$'Isoform class' <- factor(Gb_repeat_class$'Isoform class', 
                                           levels = c("Intergenic", "Antisense", "Genic", "NNC", "NIC","Fusion","FSM", "ISM"))
 ```
@@ -151,7 +149,7 @@ Gh_repeat_class <- pivot_longer(TM_1_TE, cols = c('Repeat-derived promoter', 'In
 ```
 
 ```{r}
-#设置因子顺序
+#Set factor order
 Gh_repeat_class$'Isoform class' <- factor(Gh_repeat_class$'Isoform class', 
                                           levels = c("Intergenic", "Antisense", "Genic", "NNC", "NIC","Fusion","FSM", "ISM"))
 ```
